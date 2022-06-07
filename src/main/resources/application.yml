@@ -17,3 +17,6 @@ spring:
 logging:
   level:
     root: info
+
+application:
+  locale: ${LOCALE:ko}
