@@ -1,0 +1,11 @@
+spring:
+  jpa:
+    show_sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
+logging:
+  level:
+    root: info
