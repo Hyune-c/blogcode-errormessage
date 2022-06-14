@@ -1,32 +1,29 @@
 package com.example.blogcodeerrormessage.common.exception;
 
 import java.util.Arrays;
-import java.util.Locale;
 import javax.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 @Getter
 @RequiredArgsConstructor
 public enum Errorcode {
 
-	NOT_EXIST_PRODUCT("1001", "product.not_exist_product"),
-	OUT_OF_STOCK("1200", "product.out_of_stock"),
-	UNKNOWN("9999", "product.unknown"),
+	NOT_EXIST_PRODUCT,
+	OUT_OF_STOCK,
+	UNKNOWN,
 	;
 
-	private final String code;
-	private final String propertiesCode;
+	private String code;
 	private String reason;
 
 	@RequiredArgsConstructor
 	@Component
 	public static class ErrorreasonInjector {
 
-		private final MessageSource messageSource;
+		private final ErrorcodeDataRepository repository;
 
 		@Value("${application.locale}")
 		private String locale;
@@ -34,7 +31,14 @@ public enum Errorcode {
 		@PostConstruct
 		public void postConstruct() {
 			Arrays.stream(Errorcode.values())
-					.forEach(errorcode -> errorcode.reason = messageSource.getMessage(errorcode.getPropertiesCode(), null, Locale.forLanguageTag(this.locale)));
+					.forEach(errorcode ->
+							repository.findByNameAndLocale(errorcode.name(), locale)
+									.ifPresent(e -> {
+												errorcode.code = e.getCode();
+												errorcode.reason = e.getReason();
+											}
+									)
+					);
 		}
 	}
 }
